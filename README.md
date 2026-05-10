@@ -267,5 +267,5 @@ I am **not** claiming to be an expert in any of these — just that I've used th
 
 This was my first end-to-end practical security project. Along the way, I leaned on official documentation and online write-ups. There's plenty I haven't covered yet (custom rule writing, real threat hunting queries, AD integration). Happy to discuss any part of this README in more detail at an interview.
 
-📧 pirmakhanoverlan@gmail.com
-**https://hh.kz/resume/06a9299fff10757f930039ed1f79525a396257**
+📧 pirmakhanoverlan@gmail.com 
+https://hh.kz/resume/06a9299fff10757f930039ed1f79525a396257
