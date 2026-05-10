@@ -23,6 +23,18 @@ This is **not** a production-grade setup — it's a learning artifact. Below I d
 
 ---
 
+## 📂 Repository Structure
+
+```
+home-soc-lab/
+├── README.md       — English project report
+├── README.ru.md    — Russian version
+├── LICENSE         — MIT License
+└── images/         — Screenshots from Wazuh, Sysmon, and alert triage
+```
+
+---
+
 ## 🏗️ Architecture
 
 ```
@@ -69,7 +81,7 @@ Both VMs running in VirtualBox 7 on a single laptop (16 GB RAM, AMD Ryzen 7).
 ### 1. Wazuh Server
 - Imported pre-built Wazuh OVA into VirtualBox
 - 4 GB RAM, 2 vCPU, bridged networking
-- Reached the dashboard at `https://192.168.100.83` (admin / admin)
+- Reached the dashboard at `https://<wazuh-server-ip>` using default lab credentials (must be rotated for any non-lab deployment)
 
 ### 2. Windows 11 Victim VM
 - Installed Win11 Enterprise Evaluation manually (the unattended install hung — had to retry)
