@@ -130,11 +130,14 @@
 - Level 5–10: 5 алертов
 - Level 3–4: 40+ алертов
 
-> 📸 *Положите скриншоты в папку `images/` и раскомментируйте строки ниже.*
+![MITRE ATT&CK Dashboard](images/02-mitre-attack-dashboard.png)
+*MITRE ATT&CK Dashboard — после симуляции атак подсветились 6 тактик. Видно распределение алертов по тактикам и временной график их появления.*
 
- ![MITRE ATT&CK Dashboard](images/02-mitre-attack-dashboard.png) 
- ![Threat Hunting Events](images/03-threat-hunting.png) 
- ![Wazuh Dashboard](images/01-wazuh-dashboard.png) 
+![Threat Hunting Events](images/03-threat-hunting.png)
+*Threat Hunting view — 58 алертов за 30 минут с фильтром `agent.name: Win11-Victim`. Видны конкретные правила: encoded PowerShell (level 12), file dropped (level 15), service creation (level 5).*
+
+![Wazuh Dashboard](images/01-wazuh-dashboard.png)
+*Wazuh Dashboard — главный обзор с агентом Win11-Victim в статусе Active.*
 
 ---
 
