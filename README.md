@@ -1,27 +1,29 @@
 # 🛡️ Home SOC Laboratory — Wazuh + Sysmon + MITRE ATT&CK
 
+🌐 **Language:** **English** | [Русский](README.ru.md)
+
 [![Wazuh](https://img.shields.io/badge/Wazuh-4.14.5-blue?logo=wazuh)](https://wazuh.com/)
 [![Sysmon](https://img.shields.io/badge/Sysmon-15.20-orange?logo=microsoft)](https://learn.microsoft.com/sysinternals/downloads/sysmon)
 [![MITRE](https://img.shields.io/badge/MITRE-ATT%26CK-red)](https://attack.mitre.org/)
 
-Учебный проект, в котором я документирую свой первый практический опыт развёртывания небольшого SOC-лаба и детектирования атак на Windows. Сделан end-to-end за ~2 недели параллельно с учёбой.
+A learning project documenting my first hands-on experience setting up a small SOC lab and detecting Windows attack techniques through it. Built end-to-end over ~2 weeks alongside university studies.
 
 ---
 
-## 📋 О проекте
+## 📋 What This Project Is
 
-Я — студент 4 курса по специальности «Информационная безопасность», ищу стажировку или junior-позицию в SOC. Заметил, что большая часть учёбы была теоретической, поэтому решил собрать этот лаб — чтобы получить практический опыт в:
+I'm a final-year Information Security student looking for an internship or junior position in SOC. I noticed that most of my coursework was theoretical, so I decided to build this lab to gain practical experience in:
 
-- Развёртывании open-source SIEM (Wazuh)
-- Сборе телеметрии с эндпоинтов через Sysmon
-- Генерации реальных событий атак на Windows и наблюдении как они выглядят в SIEM
-- Чтении и triage SIEM-алертов так, как это делает L1-аналитик
+- Deploying an open-source SIEM (Wazuh)
+- Collecting endpoint telemetry through Sysmon
+- Generating real Windows attack events and seeing how they look in a SIEM
+- Reading and triaging SIEM alerts the way an L1 analyst does
 
-Это **не** production-grade установка — это учебный артефакт. Ниже описано что я построил, чему научился, и что бы сделал по-другому в следующий раз.
+This is **not** a production-grade setup — it's a learning artifact. Below I document what I built, what I learned, and what I'd do differently next time.
 
 ---
 
-## 🏗️ Архитектура
+## 🏗️ Architecture
 
 ```
 ┌─────────────────────────────────┐                  ┌─────────────────────────────────┐
@@ -39,50 +41,50 @@
 │  │   Wazuh Agent v4.14.5     │  │                  │  │   (OpenSearch fork)       │  │
 │  └───────────────────────────┘  │                  │  └────────────┬──────────────┘  │
 │                                 │                  │  ┌────────────▼──────────────┐  │
-│  ⚔️ Ручная симуляция MITRE      │                  │  │   Wazuh Dashboard         │  │
-│     техник через PowerShell     │                  │  │   (web UI)                │  │
+│  ⚔️ Manual MITRE technique      │                  │  │   Wazuh Dashboard         │  │
+│     simulation via PowerShell   │                  │  │   (web UI)                │  │
 │                                 │                  │  └───────────────────────────┘  │
 └─────────────────────────────────┘                  └─────────────────────────────────┘
 
-Обе VM работают в VirtualBox 7 на одном ноутбуке (16 ГБ RAM, AMD Ryzen 7).
+Both VMs running in VirtualBox 7 on a single laptop (16 GB RAM, AMD Ryzen 7).
 ```
 
 ---
 
-## 🔧 Стек технологий
+## 🔧 Tech Stack
 
-| Компонент | Версия | Роль |
-|-----------|--------|------|
+| Component | Version | Role |
+|-----------|---------|------|
 | Wazuh | 4.14.5 | Open-source SIEM/XDR |
-| Sysmon | 15.20 | Расширенное логирование событий Windows |
-| sysmon-modular | latest | MITRE-aligned конфиг для Sysmon (автор Olaf Hartong) |
-| VirtualBox | 7.x | Гипервизор |
-| Windows 11 Enterprise Evaluation | 25H2 (Build 26200.6584) | Эндпоинт-жертва (90-day trial) |
-| PowerShell | 5.1 | Скрипты для симуляции атак |
+| Sysmon | 15.20 | Extended Windows event logging |
+| sysmon-modular | latest | MITRE-aligned config for Sysmon (by Olaf Hartong) |
+| VirtualBox | 7.x | Hypervisor |
+| Windows 11 Enterprise Evaluation | 25H2 (Build 26200.6584) | Victim endpoint (90-day trial) |
+| PowerShell | 5.1 | Attack simulation scripts |
 
 ---
 
-## 🚀 Что я сделал
+## 🚀 What I Built
 
-### 1. Сервер Wazuh
-- Импортировал готовый Wazuh OVA в VirtualBox
-- 4 ГБ RAM, 2 vCPU, bridged-сеть
-- Открыл дашборд по адресу `https://192.168.100.83` (admin / admin)
+### 1. Wazuh Server
+- Imported pre-built Wazuh OVA into VirtualBox
+- 4 GB RAM, 2 vCPU, bridged networking
+- Reached the dashboard at `https://192.168.100.83` (admin / admin)
 
-### 2. Виртуальная машина Win11 (жертва)
-- Установил Win11 Enterprise Evaluation вручную (unattended install зависал — пришлось переустанавливать)
-- 4 ГБ RAM, 2 vCPU, EFI включён
-- Отключил real-time protection в Defender (только для лаба, после отключения Tamper Protection через Windows Security GUI)
-- Сделал VirtualBox snapshot до любых изменений — потом это пригодилось
+### 2. Windows 11 Victim VM
+- Installed Win11 Enterprise Evaluation manually (the unattended install hung — had to retry)
+- 4 GB RAM, 2 vCPU, EFI enabled
+- Disabled Defender real-time protection (lab-only, after disabling Tamper Protection through Windows Security GUI)
+- Took a VirtualBox snapshot before any modifications — it saved me later
 
 ### 3. Sysmon
-- Скачал с Sysinternals, применил конфиг [sysmon-modular](https://github.com/olafhartong/sysmon-modular)
-- Установил через `Sysmon64.exe -accepteula -i sysmonconfig.xml`
+- Downloaded from Sysinternals, applied [sysmon-modular](https://github.com/olafhartong/sysmon-modular) configuration
+- Installed via `Sysmon64.exe -accepteula -i sysmonconfig.xml`
 
-### 4. Wazuh-агент + критическая настройка
-- Установил через мастер «Deploy new agent» в дашборде
-- **Важная деталь, которую пропустил сначала:** дефолтный конфиг агента НЕ подписан на канал Sysmon. Поэтому агент подключился, но события Sysmon никуда не уходили в SIEM.
-- Исправил, добавив в `C:\Program Files (x86)\ossec-agent\ossec.conf`:
+### 4. Wazuh Agent + The Critical Config Step
+- Installed via the dashboard's "Deploy new agent" wizard
+- **Important detail I missed at first:** the default agent config does NOT subscribe to the Sysmon channel. So the agent connected, but no Sysmon events were flowing into the SIEM.
+- Fixed by adding to `C:\Program Files (x86)\ossec-agent\ossec.conf`:
 
 ```xml
 <localfile>
@@ -91,31 +93,31 @@
 </localfile>
 ```
 
-После рестарта агента (`Restart-Service -Name Wazuh`) события Sysmon начали появляться в дашборде.
+After restarting the agent (`Restart-Service -Name Wazuh`), Sysmon events started appearing in the dashboard.
 
 ---
 
-## ⚔️ Сценарии атак
+## ⚔️ Attack Scenarios
 
-Я вручную выполнил 7 техник атак на машине-жертве. Изначально планировал использовать Atomic Red Team, но скачивание с GitHub было затроттлено до ~23 КБ/с из моего региона — поэтому запускал каждую технику вручную через PowerShell. Получилось даже полезнее: я разобрался, что делает каждая команда.
+I manually executed 7 PowerShell-based attack techniques on the victim. Originally I planned to use Atomic Red Team, but the GitHub download was throttled to ~23 KB/s from my region — so I ran each technique manually instead. This actually turned out to be more educational, because I now understand what each command does.
 
-| # | MITRE ID | Техника | Тактика |
-|---|----------|---------|---------|
-| 1 | T1059.001 | PowerShell — поиск файлов с паролями | Execution |
-| 2 | T1059.003 | Разведка через Windows cmd (whoami, net user, systeminfo) | Execution / Discovery |
+| # | MITRE ID | Technique | Tactic |
+|---|----------|-----------|--------|
+| 1 | T1059.001 | PowerShell — credential file search | Execution |
+| 2 | T1059.003 | Windows cmd reconnaissance (whoami, net user, systeminfo) | Execution / Discovery |
 | 3 | T1218.011 | Rundll32 (LOLBin) | Defense Evasion |
-| 4 | T1547.001 | Persistence через Registry Run-key | Persistence |
-| 5 | T1543.003 | Создание Windows-сервиса | Persistence |
-| 6 | T1003.001 | Доступ к процессу LSASS | Credential Access |
+| 4 | T1547.001 | Registry Run Key persistence | Persistence |
+| 5 | T1543.003 | Windows service creation | Persistence |
+| 6 | T1003.001 | LSASS process access | Credential Access |
 | 7 | T1027 | Encoded PowerShell (base64) | Defense Evasion |
 
-> ⚠️ Все атаки запускались внутри изолированной VM с возможностью отката через snapshot. **Никогда не запускайте такие команды на production-системах.** Этот проект — только для образовательных целей.
+> ⚠️ All attacks were run inside an isolated VM with snapshot rollback. **Never run these commands on production systems.** This project is for educational purposes only.
 
 ---
 
-## 🔍 Что Wazuh поймал
+## 🔍 What Wazuh Caught
 
-С фильтром `agent.name: Win11-Victim` в Threat Hunting (окно 30 минут после запуска атак) Wazuh показал **49 алертов с MITRE-маппингом** плюс много дополнительных Sysmon-событий. Тактики, которые подсветились на матрице MITRE:
+With filter `agent.name: Win11-Victim` in Threat Hunting (30-minute window after attack execution), Wazuh showed **49 MITRE-tagged alerts** plus many additional Sysmon events. Tactics that lit up on the MITRE matrix:
 
 - Execution
 - Persistence
@@ -124,56 +126,59 @@
 - Credential Access
 - Command and Control
 
-**Распределение по уровню серьёзности:**
-- Level 15 (Critical): 1 алерт
-- Level 12 (High): 3 алерта
-- Level 5–10: 5 алертов
-- Level 3–4: 40+ алертов
+**Severity distribution:**
+- Level 15 (Critical): 1 alert
+- Level 12 (High): 3 alerts
+- Level 5–10: 5 alerts
+- Level 3–4: 40+ alerts
 
 ![MITRE ATT&CK Dashboard](images/02-mitre-attack-dashboard.png)
-*MITRE ATT&CK Dashboard — после симуляции атак подсветились 6 тактик. Видно распределение алертов по тактикам и временной график их появления.*
+*MITRE ATT&CK Dashboard — after simulating 7 attacks, 6 tactics lit up. Shows alert distribution and a timeline of when they occurred.*
 
 ![Threat Hunting Events](images/03-threat-hunting.png)
-*Threat Hunting view — 58 алертов за 30 минут с фильтром `agent.name: Win11-Victim`. Видны конкретные правила: encoded PowerShell (level 12), file dropped (level 15), service creation (level 5).*
+*Threat Hunting view — 58 alerts over a 30-minute window with filter `agent.name: Win11-Victim`. Specific rules visible: encoded PowerShell (level 12), file dropped (level 15), service creation (level 5), discovery activity (level 3).*
 
 ![Wazuh Dashboard](images/01-wazuh-dashboard.png)
-*Wazuh Dashboard — главный обзор с агентом Win11-Victim в статусе Active.*
+*Wazuh Endpoints Summary — agent Win11-Victim in Active status, version 4.14.5.*
 
 ---
 
-## 🎯 Два алерта, которые я разобрал
+## 🎯 Two Alerts I Analyzed
 
-Самая полезная часть проекта — практика triage алертов. Два алерта стояли как противоположные кейсы.
+The most useful part of this project was practicing alert triage. Two alerts stood out as opposite cases.
 
-### Алерт 1 — True Positive: Encoded PowerShell (T1059.001)
+### Alert 1 — True Positive: Encoded PowerShell (T1059.001)
 
-**Rule 92057, Level 12** — *«Powershell.exe spawned a powershell process which executed a base64 encoded command»*
+**Rule 92057, Level 12** — *"Powershell.exe spawned a powershell process which executed a base64 encoded command"*
 
 ![Encoded PowerShell Alert JSON](images/04-alert-encoded-powershell-json.png)
-*Раскрытый JSON алерта Level 12. Видны ключевые поля: `commandLine` с флагом `-EncodedCommand` и base64-блобом, `integrityLevel: High`, `user: socadmin`, `parentProcessGuid` (родительский процесс — тоже PowerShell), `hashes` с SHA256 для проверки в TI-фидах.*
+*Expanded JSON of the Level 12 alert. Key fields visible: `commandLine` with the `-EncodedCommand` flag and base64 blob, `integrityLevel: High`, `user: socadmin`, `parentProcessGuid` (parent is also PowerShell), `hashes` with SHA256 for TI feed lookups.*
 
-При разборе JSON:
-- Пользователь: `WIN11-VICTIM\socadmin`, integrityLevel **High**, интерактивная сессия
-- Родительский процесс — тоже `powershell.exe` (chain launching, классический индикатор обфускации)
-- В commandLine — флаг `-EncodedCommand` с base64-блобом
-- Декодировал base64 (PowerShell использует **UTF-16 Little Endian**, не UTF-8 — легко ошибиться): `$s="hello from SOC-lab";Write-Host $s`
+Going through the JSON:
 
-В нашем лабе payload безобидный, но **сам паттерн** (base64 + chain launching + админские права) — это именно то, что делают реальные атакующие. Поэтому я отнёс это к True Positive и составил triage-заметку.
+- User: `WIN11-VICTIM\socadmin`, integrityLevel **High**, interactive session
+- Parent process is also `powershell.exe` (chain launching, classic obfuscation indicator)
+- Command line has the `-EncodedCommand` flag with a base64 blob
+- Decoded the base64 (PowerShell uses **UTF-16 Little Endian**, not UTF-8 — easy to mess up): `$s="hello from SOC-lab";Write-Host $s`
 
-### Алерт 2 — False Positive: Файл создан в Temp (T1105)
+In our lab the payload is harmless, but **the pattern itself** (base64 + chain launching + admin privileges) is exactly what real attackers do. So I marked it as a True Positive and wrote a triage note.
 
-**Rule 92213, Level 15** — *«Executable file dropped in folder commonly used by malware»*
+### Alert 2 — False Positive: File Created in Temp (T1105)
+
+**Rule 92213, Level 15** — *"Executable file dropped in folder commonly used by malware"*
 
 ![PSScriptPolicyTest Alert JSON](images/05-alert-pstest-json.png)
-*Раскрытый JSON алерта Level 15. Ключевое поле — `targetFilename`, в котором виден файл `__PSScriptPolicyTest_szs4ioxw.j3i.ps1`. Обратите внимание: `processGuid` совпадает с ProcessGuid из алерта Level 12 выше — это значит файл создал тот же PowerShell-процесс, через 1 секунду после запуска.*
-Level 15 звучал страшно, но при разборе JSON:
-- Создан файл: `__PSScriptPolicyTest_szs4ioxw.j3i.ps1` в `AppData\Local\Temp\`
-- Тот же `ProcessGuid`, что и у encoded PowerShell — то есть **тот же процесс** создал файл через 1 секунду
-- Имя файла `__PSScriptPolicyTest_*` — это документированный внутренний механизм самой PowerShell для проверки ExecutionPolicy
+*Expanded JSON of the Level 15 alert. Key field — `targetFilename` with value `__PSScriptPolicyTest_szs4ioxw.j3i.ps1`. Note: `processGuid` matches the `ProcessGuid` from the Level 12 alert above — meaning the file was created by the same PowerShell process, 1 second after launch.*
 
-То есть Level 15 оказался **False Positive** — легитимное поведение Windows. Главный вывод: уровень severity не равен реальной серьёзности. Сначала нужно читать данные, потом реагировать.
+Level 15 sounded scary, but going through the JSON:
 
-Простой rule tuning для подавления этого FP в production выглядел бы так:
+- Created file: `__PSScriptPolicyTest_szs4ioxw.j3i.ps1` in `AppData\Local\Temp\`
+- Same `ProcessGuid` as encoded PowerShell — so **the same process** created the file 1 second later
+- Filename `__PSScriptPolicyTest_*` is a documented internal mechanism of PowerShell itself for ExecutionPolicy validation
+
+So this Level 15 turned out to be a **False Positive** — legitimate Windows behavior. The main takeaway: severity score does not equal real-world severity. You have to read the data first, then react.
+
+A simple rule tuning to suppress this FP in production would look like:
 
 ```xml
 <rule id="100100" level="0">
@@ -185,57 +190,57 @@ Level 15 звучал страшно, но при разборе JSON:
 
 ---
 
-## 🧱 Реальные сложности, с которыми столкнулся
+## 🧱 Real Challenges I Hit
 
-Перечисляю честно — именно на этом я больше всего научился:
+Listing them honestly — this is where I learned the most:
 
-- **Wazuh OVA не загружался** с включённым Secure Boot — пришлось отключить его в настройках VM
-- **Unattended-установка Win11 в VirtualBox зависала** на диалоге апгрейда — пересоздал VM и установил вручную
-- **Скачивание Atomic Red Team было затроттлено** GitHub-ом (~23 КБ/с) — пришлось переключиться на ручной запуск техник, что заодно заставило меня разобраться в каждой команде
-- **Defender Tamper Protection блокировал `Set-MpPreference`** из PowerShell — пришлось сначала отключить Tamper Protection через Windows Security GUI, и только потом отключать real-time protection
-- **События Sysmon не доходили до Wazuh** хотя агент был Active — оказалось дефолтный конфиг агента не подписан на Sysmon-канал, нужно было добавить `<localfile>` для `Microsoft-Windows-Sysmon/Operational` в `ossec.conf`
-- **Между сессиями менялась сеть** (домашний Wi-Fi → мобильный hotspot → домашний Wi-Fi) — IP сдвигались, приходилось проверять связность. В будущем буду использовать NAT Network в VirtualBox, чтобы не зависеть от физической сети
-- **Хост-RAM был впритык** — 16 ГБ при двух 4-гиговых VM плюс браузер было нестабильно; пришлось закрывать фоновые приложения (Discord, Steam и др.) перед каждой сессией
-
----
-
-## 📈 Что я освоил в этом проекте
-
-Получил практический опыт работы с:
-
-- Навигацией по дашборду Wazuh, регистрацией агентов, базовой конфигурацией
-- Установкой Sysmon и применением стороннего MITRE-aligned конфига
-- Чтением сырых Sysmon Event ID (1, 11, 13) внутри SIEM-алертов
-- Чтением и декодированием `-EncodedCommand` payload'ов в PowerShell
-- 6-шаговым workflow triage алертов (read → context → reconstruct → decode → triage → action)
-- Различением True Positive и False Positive по контексту, а не по severity
-- Корреляцией событий между процессами через `ProcessGuid`
-
-Я **не** претендую быть экспертом ни в одной из этих тем — только использовал их на практике в этом лабе.
+- **Wazuh OVA wouldn't boot** with Secure Boot enabled — had to disable it in VM settings
+- **Unattended Win11 install in VirtualBox hung** at the upgrade dialog — recreated the VM and installed manually
+- **Atomic Red Team download was throttled** by GitHub (~23 KB/s) — had to switch to manual technique execution, which actually forced me to understand each command
+- **Defender Tamper Protection blocked `Set-MpPreference`** from PowerShell — had to disable Tamper Protection through Windows Security GUI first, only then disable real-time protection
+- **Sysmon events weren't reaching Wazuh** even though the agent was Active — turned out the default agent config doesn't subscribe to the Sysmon channel; needed to add `<localfile>` for `Microsoft-Windows-Sysmon/Operational` to `ossec.conf`
+- **Network changed between sessions** (home Wi-Fi → mobile hotspot → home Wi-Fi) — IPs shifted, had to re-check connectivity. Going forward I'll use NAT Network in VirtualBox to be independent of physical networking
+- **Host RAM was tight** — 16 GB with two 4 GB VMs plus a browser was unstable; had to close background apps (Discord, Steam, etc.) before each session
 
 ---
 
-## 📚 Чему я научился (lessons learned)
+## 📈 What I Gained From This Project
 
-1. **Severity ≠ реальная угроза.** Level 15 алерт оказался False Positive (легитимное поведение Windows). Level 12 был реальным паттерном атаки. Всегда сначала разбираться, потом реагировать.
+Hands-on familiarity with:
 
-2. **Дефолтные конфиги инструментов редко достаточны.** Wazuh-агент будет часами работать без видимости Sysmon, если не указать какие каналы читать. Чтение документации окупается.
+- Wazuh dashboard navigation, agent enrollment, basic configuration
+- Sysmon installation and applying a third-party MITRE-aligned config
+- Reading raw Sysmon Event IDs (1, 11, 13) inside SIEM alerts
+- Reading and decoding `-EncodedCommand` PowerShell payloads
+- The 6-step alert triage workflow (read → context → reconstruct → decode → triage → action)
+- Distinguishing True Positives from False Positives based on context, not severity
+- Correlating events across processes via `ProcessGuid`
 
-3. **`ProcessGuid` надёжнее `ProcessId` для корреляции.** OS PID-ы могут переиспользоваться; ProcessGuid уникален навсегда.
-
-4. **Планирование ресурсов важно.** Ноутбук с 16 ГБ работает с двумя VM, но только если хост чистый. Фоновые приложения быстро съедают память.
-
----
-
-## 🚧 Что бы хотел сделать дальше
-
-- Написать несколько собственных детектирующих правил в `local_rules.xml` (пока использовал только встроенные)
-- Добавить Linux-эндпоинт для сравнения детектов на разных платформах
-- Попробовать интеграцию с Active Directory + Domain Controller для сценариев credential theft
+I am **not** claiming to be an expert in any of these — just that I've used them in practice on this lab.
 
 ---
 
-## 📖 Источники
+## 📚 Lessons Learned
+
+1. **Severity ≠ real-world impact.** The Level 15 alert I investigated turned out to be a False Positive (legitimate Windows behavior). The Level 12 was a real attack pattern. Always investigate before reacting.
+
+2. **Default tool configurations are rarely sufficient.** The Wazuh agent will happily run for hours with no Sysmon visibility unless you tell it which channels to read. Reading documentation pays off.
+
+3. **`ProcessGuid` is more reliable than `ProcessId` for correlation.** OS PIDs can be reused; ProcessGuid is unique forever.
+
+4. **Plan around resource constraints.** A 16 GB laptop is workable for two VMs, but only if the host is kept clean. Background applications add up fast.
+
+---
+
+## 🚧 Next Steps I'd Like to Take
+
+- Write a few of my own custom detection rules in `local_rules.xml` (so far I've only used the bundled rules)
+- Add a Linux endpoint to compare cross-platform detection
+- Try integrating Active Directory + Domain Controller for credential-theft scenarios
+
+---
+
+## 📖 References
 
 - [Wazuh Documentation](https://documentation.wazuh.com/)
 - [Sysmon (Microsoft Sysinternals)](https://learn.microsoft.com/sysinternals/downloads/sysmon)
@@ -244,11 +249,10 @@ Level 15 звучал страшно, но при разборе JSON:
 
 ---
 
-## 👤 Обо мне
+## 👤 About Me
 
-Пирмаханов Ерлан — студент 4 курса по специальности «Информационная безопасность» в Satbayev University (Алматы), GPA 3.7 / 4.0. Открыт к стажировкам и junior-позициям в SOC.
+**Erlan Pirmakhanov** — final-year Information Security student at Satbayev University (Almaty, Kazakhstan), GPA 3.7 / 4.0. Open to internship or junior SOC analyst roles.
 
-Это был мой первый сквозной практический проект по ИБ. По ходу опирался на официальную документацию и онлайн-материалы. Многое ещё не покрыто (написание custom правил, реальные threat hunting запросы, интеграция с AD). Готов подробно обсудить любую часть README на собеседовании.
+This was my first end-to-end practical security project. Along the way, I leaned on official documentation and online write-ups. There's plenty I haven't covered yet (custom rule writing, real threat hunting queries, AD integration). Happy to discuss any part of this README in more detail at an interview.
 
-📧 pirmakhanoverlan@gmail.com  
-🔗 hh.kz: {YOUR_HHKZ_URL}
+📧 pirmakhanoverlan@gmail.com
