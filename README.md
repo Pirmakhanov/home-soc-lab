@@ -149,6 +149,9 @@
 
 **Rule 92057, Level 12** — *«Powershell.exe spawned a powershell process which executed a base64 encoded command»*
 
+![Encoded PowerShell Alert JSON](images/04-alert-encoded-powershell-json.png)
+*Раскрытый JSON алерта Level 12. Видны ключевые поля: `commandLine` с флагом `-EncodedCommand` и base64-блобом, `integrityLevel: High`, `user: socadmin`, `parentProcessGuid` (родительский процесс — тоже PowerShell), `hashes` с SHA256 для проверки в TI-фидах.*
+
 При разборе JSON:
 - Пользователь: `WIN11-VICTIM\socadmin`, integrityLevel **High**, интерактивная сессия
 - Родительский процесс — тоже `powershell.exe` (chain launching, классический индикатор обфускации)
@@ -161,6 +164,8 @@
 
 **Rule 92213, Level 15** — *«Executable file dropped in folder commonly used by malware»*
 
+![PSScriptPolicyTest Alert JSON](images/05-alert-pstest-json.png)
+*Раскрытый JSON алерта Level 15. Ключевое поле — `targetFilename`, в котором виден файл `__PSScriptPolicyTest_szs4ioxw.j3i.ps1`. Обратите внимание: `processGuid` совпадает с ProcessGuid из алерта Level 12 выше — это значит файл создал тот же PowerShell-процесс, через 1 секунду после запуска.*
 Level 15 звучал страшно, но при разборе JSON:
 - Создан файл: `__PSScriptPolicyTest_szs4ioxw.j3i.ps1` в `AppData\Local\Temp\`
 - Тот же `ProcessGuid`, что и у encoded PowerShell — то есть **тот же процесс** создал файл через 1 секунду
