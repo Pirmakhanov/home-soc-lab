@@ -132,9 +132,9 @@
 
 > 📸 *Положите скриншоты в папку `images/` и раскомментируйте строки ниже.*
 
-<!-- ![MITRE ATT&CK Dashboard](images/02-mitre-attack-dashboard.png) -->
-<!-- ![Threat Hunting Events](images/03-threat-hunting.png) -->
-<!-- ![Wazuh Dashboard](images/01-wazuh-dashboard.png) -->
+ ![MITRE ATT&CK Dashboard](images/02-mitre-attack-dashboard.png) 
+ ![Threat Hunting Events](images/03-threat-hunting.png) 
+ ![Wazuh Dashboard](images/01-wazuh-dashboard.png) 
 
 ---
 
