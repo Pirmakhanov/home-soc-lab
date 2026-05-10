@@ -263,7 +263,7 @@ I am **not** claiming to be an expert in any of these — just that I've used th
 
 ## 👤 About Me
 
-**Erlan Pirmakhanov** — final-year Information Security student at Satbayev University (Almaty, Kazakhstan), GPA 3.7 / 4.0. Open to internship or junior SOC analyst roles.
+**Erlan Pirmakhanov** — final-year Information Security student at Satbayev University (Almaty, Kazakhstan), GPA 3.68 / 4.0. Open to internship or junior SOC analyst roles.
 
 This was my first end-to-end practical security project. Along the way, I leaned on official documentation and online write-ups. There's plenty I haven't covered yet (custom rule writing, real threat hunting queries, AD integration). Happy to discuss any part of this README in more detail at an interview.
 
